@@ -1,0 +1,21 @@
+{
+  "name": "kudostest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js | pino-pretty"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^2.12.0",
+    "awilix": "^4.2.5",
+    "dotenv": "^8.2.0",
+    "immer": "^6.0.3",
+    "jsonwebtoken": "^8.5.1",
+    "nodemon": "^2.0.3",
+    "pino": "^6.1.1",
+    "pino-pretty": "^4.0.0"
+  }
+}
