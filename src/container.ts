@@ -1,7 +1,7 @@
+import * as awilix from 'awilix'
 import { asClass, asValue } from 'awilix'
 import { PrismaClient } from '@prisma/client'
 import pino from 'pino'
-import * as awilix from 'awilix'
 
 import KudosResolver from './domain/kudos/kudos.resolvers'
 import KudosRepository from './domain/kudos/kudos.repository'

@@ -29,8 +29,8 @@ const seeds = {
   ],
 }
 
-export function seedDatabase(skip: boolean, prisma) {
-  if (skip) return
+export function seedDatabase(launch: boolean, prisma, logger) {
+  if (!launch) return
 
   try {
     seeds.users.forEach(async (user: IUser) => {

@@ -15,10 +15,9 @@ export const main = async () => {
     authChecker,
   })
 
-  const prisma = container.resolve('prisma')
-  seedDatabase(true, prisma)
-
   const logger: any = container.resolve('logger')
+  const prisma = container.resolve('prisma')
+  seedDatabase(false, prisma, logger)
 
   const server = new ApolloServer({
     typeDefs,
