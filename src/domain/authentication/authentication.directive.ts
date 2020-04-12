@@ -1,10 +1,9 @@
-const { SchemaDirectiveVisitor } = require('apollo-server');
-const awilix = require('awilix');
-const usersRepository = require('./repositories/users');
+import { SchemaDirectiveVisitor } from 'apollo-server';
+import awilix from 'awilix';
 
-class AuthenticationDirective extends SchemaDirectiveVisitor {
+export default class AuthenticationDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field, details) {
-    const { resolve = defaultFieldResolver } = field;
+    const { resolve } = field;
 
     field.resolve = async function (...args) {
       const [, , ctx] = args;
@@ -15,6 +14,7 @@ class AuthenticationDirective extends SchemaDirectiveVisitor {
         .resolve('usersRepository')
         .getWithToken(ctx.container.resolve('currentToken'));
 
+      console.log('user', user);
       // TODO: currentUser should be containerised if found
       ctx.container.register({
         currentUser: awilix.asValue(user),
@@ -30,5 +30,3 @@ class AuthenticationDirective extends SchemaDirectiveVisitor {
     };
   }
 }
-
-module.exports = AuthenticationDirective;

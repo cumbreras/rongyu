@@ -1,5 +1,5 @@
-{
-  "kudos": [
+export default {
+  kudos: [
     {
       "message": "because he is cool",
       "date": "04/10/2020",
@@ -13,7 +13,7 @@
       "userFrom": { "username": "mplatinas" }
     }
   ],
-  "users": [
+  users: [
     {
       "username": "bayito",
       "name": "Chimo Bayo",
