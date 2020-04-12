@@ -5,65 +5,88 @@ import { IUser } from './user.type'
 
 export default class UsersRepository {
   private appSecret: string
+  private prisma: any
   private database: IDatabase
+  logger: any
 
   constructor(container: AppContainer) {
     this.database = container.database
+    this.prisma = container.prisma
     this.appSecret = container.appSecret
+    this.logger = container.logger
   }
 
-  get() {
-    return this.database.users
+  async getAll(): Promise<IUser[]> {
+    return await this.prisma.user.findMany()
   }
 
-  register(name: string, username: string, password: string): IUser {
-    const token = jwt.sign(
-      { username, password },
-      this.appSecret,
-    );
+  async getByUsername(username: string): Promise<IUser> {
+    return await this.prisma.user.findOne({
+      where: { username },
+    })
+  }
+
+  async register(
+    name: string,
+    username: string,
+    password: string
+  ): Promise<IUser> {
+    const token = jwt.sign({ username, password }, this.appSecret)
 
     const newUser = {
       name,
       username,
       password,
       token,
-    };
+    }
 
-    this.database.users.push(newUser);
-    return newUser;
+    let user: IUser
+
+    try {
+      user = await this.prisma.user.create({ data: newUser })
+    } catch (e) {
+      throw new Error(`User already registered`)
+    }
+
+    this.logger.info(`New User Registered: ${newUser.username}`)
+    return user
   }
 
-  login(username: string, password: string): IUser {
-    const user = this.database.users.find(
-      (userData) => userData.username === username && userData.password === password,
-    )
+  async login(username: string, password: string): Promise<IUser> {
+    let user = await this.getByUsername(username)
 
-    if (!user) {
+    if (!this.isSamePassword(password, user.password) || !user) {
+      this.logger.error(`User couldn't login`)
       throw new Error('User not found')
     }
 
     const token = jwt.sign(
       { username: user.username, password: user.password },
-      this.appSecret,
+      this.appSecret
     )
 
-    user.token = token
+    user = await this.prisma.user.update({
+      where: { id: user.id },
+      data: { token },
+    })
+
     return user
   }
 
-  getWithToken(token: string): IUser | null {
+  async getWithToken(token: string): Promise<IUser> {
     try {
-      const decoded = jwt.verify(token, this.appSecret);
-      const user = this.database.users.find(
-        (userData) => {
-          return userData.username === (decoded as IUser).username &&
-            userData.password === (decoded as IUser).password
-        }
-      );
-
-      return user;
+      const decoded = jwt.verify(token, this.appSecret)
+      return await this.getByUsername((decoded as IUser).username)
     } catch (e) {
-      return null;
+      return null
     }
+  }
+
+  private isSamePassword(
+    passwordAttempt: string,
+    currentPassword: string
+  ): boolean {
+    // dummy implementation for now
+    return passwordAttempt === currentPassword
   }
 }

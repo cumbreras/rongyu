@@ -1,9 +1,18 @@
-import { Resolver, Query, Ctx, Args, Mutation, Arg, Field, InputType, ArgsType } from 'type-graphql'
+import {
+  Resolver,
+  Query,
+  Ctx,
+  Args,
+  Mutation,
+  Arg,
+  Field,
+  InputType,
+  ArgsType,
+} from 'type-graphql'
 import Kudos from './kudos.type'
 
 @ArgsType()
 class KudosSentByUserArgs {
-
   @Field({ nullable: true })
   username: string
 }
@@ -12,10 +21,10 @@ class KudosSentByUserArgs {
 @InputType({ description: 'Send Kudos' })
 class SendKudosInput implements Partial<Kudos> {
   @Field()
-  username: string;
+  username: string
 
   @Field()
-  message: string;
+  message: string
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -23,7 +32,7 @@ class SendKudosInput implements Partial<Kudos> {
 export default class KudosResolver {
   @Query(() => [Kudos])
   kudos(@Ctx() ctx) {
-    return ctx.container.resolve('kudosRepository').get()
+    return ctx.container.resolve('kudosRepository').getAll()
   }
 
   @Query(() => [Kudos])
@@ -37,10 +46,7 @@ export default class KudosResolver {
   }
 
   @Mutation(() => Kudos)
-  sendKudos(
-    @Arg('input') newKudosInput: SendKudosInput,
-    @Ctx() ctx
-  ) {
+  sendKudos(@Arg('input') newKudosInput: SendKudosInput, @Ctx() ctx) {
     return ctx.container
       .resolve('kudosRepository')
       .save(

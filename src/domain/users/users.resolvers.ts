@@ -1,6 +1,12 @@
 import {
-  Query, Resolver, Mutation, Ctx,
-  InputType, Field, Arg, Authorized
+  Query,
+  Resolver,
+  Mutation,
+  Ctx,
+  InputType,
+  Field,
+  Arg,
+  Authorized,
 } from 'type-graphql'
 import User from './user.type'
 import Context from '../interfaces/context.interface'
@@ -34,9 +40,7 @@ export default class UsersResolver {
   @Authorized()
   @Query(() => [User])
   users(@Ctx() ctx: Context) {
-    return ctx.container
-      .resolve<UserRepository>('usersRepository')
-      .get()
+    return ctx.container.resolve<UserRepository>('usersRepository').getAll()
   }
 
   @Mutation(() => User)

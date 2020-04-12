@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc -p .",
-    "start:dev": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/app.ts"
+    "start:dev": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/app.ts | pino-pretty"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/cli": "^2.0.0-beta.2",
+    "@prisma/client": "^2.0.0-beta.2",
     "apollo-server": "^2.12.0",
     "awilix": "^4.2.5",
     "dotenv": "^8.2.0",
