@@ -1,6 +1,6 @@
 import { IUser } from '../users/user.type'
 import { IKudos } from '../kudos/kudos.type'
-import { AppContainer } from '../interfaces/appcontainer.interface'
+import { AppContainer } from '../interfaces/appContainer.interface'
 
 export default class KudosRepository {
   private database: { users: IUser[]; kudos: IKudos[] }

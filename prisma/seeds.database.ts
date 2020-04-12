@@ -1,4 +1,6 @@
-export default {
+import { IUser } from '../src/domain/users/user.type'
+
+const seeds = {
   kudos: [
     {
       message: 'because he is cool',
@@ -25,4 +27,18 @@ export default {
       password: 'mike',
     },
   ],
+}
+
+export function seedDatabase(launch: boolean, prisma, logger) {
+  if (!launch) return
+
+  try {
+    seeds.users.forEach(async (user: IUser) => {
+      await prisma.user.create({
+        data: user,
+      })
+    })
+  } catch (err) {
+    logger.error(`Error seeding database: ${err}`)
+  }
 }

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { IDatabase } from '../interfaces/database.interface'
-import { AppContainer } from '../interfaces/appcontainer.interface'
+import { AppContainer } from '../interfaces/appContainer.interface'
 import { IUser } from './user.type'
 
 export default class UsersRepository {
