@@ -1,5 +1,5 @@
 import { ObjectType, Field } from 'type-graphql'
-import { IUser } from '../users/user.type'
+import User, { IUser } from '../users/user.type'
 
 @ObjectType()
 export default class Kudos {
@@ -10,10 +10,10 @@ export default class Kudos {
   date: string
 
   @Field()
-  userTo: string
+  userSent: User
 
   @Field()
-  userFrom: string
+  userReceived: User
 }
 
 export interface IKudos {

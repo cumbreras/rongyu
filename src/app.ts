@@ -1,18 +1,24 @@
-import 'reflect-metadata';
-import { ApolloServer, gql } from 'apollo-server';
-import logger from 'pino';
-import dotenv from 'dotenv';
-import { buildSchema } from 'type-graphql';
+import 'reflect-metadata'
+import { ApolloServer, gql } from 'apollo-server'
+import pino from 'pino'
+import dotenv from 'dotenv'
+import { buildSchema } from 'type-graphql'
 import * as awilix from 'awilix'
+import { asClass, asValue } from 'awilix'
 import uuidv4 from 'uuid/v4'
+import { PrismaClient } from '@prisma/client'
+
 import KudosResolver from './domain/kudos/kudos.resolvers'
-import KudosRepository from './domain/kudos/kudos.repository';
+import KudosRepository from './domain/kudos/kudos.repository'
 import UsersRepository from './domain/users/users.repository'
 import Database from './persistency/database'
-import UsersResolver from './domain/users/users.resolvers';
+import UsersResolver from './domain/users/users.resolvers'
 import { authChecker } from './domain/authentication/authchecker.directive'
+import { IUser } from './domain/users/user.type'
+import { extractBearer } from './helpers/extractBearer'
 
-dotenv.config();
+dotenv.config()
+const logger = pino()
 
 const typeDefs = gql`
   directive @auth on FIELD_DEFINITION
@@ -67,51 +73,53 @@ const typeDefs = gql`
     registerUser(input: RegisterUserInput): RegisterUserPayload
     loginUser(input: LoginUserInput): LoginUserPayload
   }
-`;
+`
 
+const prisma = new PrismaClient()
 const container = awilix.createContainer()
 
 container.register({
-  appSecret: awilix.asValue(process.env.APP_SECRET),
-  database: awilix.asValue(Database),
-  kudosRepository: awilix.asClass(KudosRepository),
-  usersRepository: awilix.asClass(UsersRepository),
-  kudosResolver: awilix.asClass(KudosResolver),
-  usersResolver: awilix.asClass(UsersResolver),
-  logger: awilix.asValue(logger)
+  appSecret: asValue(process.env.APP_SECRET),
+  database: asValue(Database),
+  kudosRepository: asClass(KudosRepository),
+  usersRepository: asClass(UsersRepository),
+  kudosResolver: asClass(KudosResolver),
+  usersResolver: asClass(UsersResolver),
+  logger: asValue(logger),
+  prisma: asValue(prisma),
 })
 
 // TODO: Context should be part of the containerisation
-const contextHandler = ({ req }) => {
-  const requestId = uuidv4();
-  const authorizationHeader = req.headers.authorization || '';
-  const token = extractBearer(authorizationHeader);
-  const usersRepository: any = container
-    .resolve('usersRepository')
+const contextHandler = async ({ req }) => {
+  const requestId = uuidv4()
+  const authorizationHeader = req.headers.authorization || ''
+  const token = extractBearer(authorizationHeader)
+  const usersRepository: any = container.resolve('usersRepository')
 
-  const user = usersRepository
-    .getWithToken(token)
+  const user = await usersRepository.getWithToken(token)
+
+  logger.info(`User received by headers: ${user.username}`)
 
   container.register({
-    currentUser: awilix.asValue(user),
-    currentUserToken: awilix.asValue(token),
-    requestId: awilix.asValue(requestId)
+    currentUser: asValue(user),
+    currentUserToken: asValue(token),
+    requestId: asValue(requestId),
   })
 
-  return { container };
-};
-
-// TODO: Move to helpers
-function extractBearer(authorizationHeader: string): string {
-  return authorizationHeader.split(' ')[1];
+  return { container }
 }
 
 // TODO: Extract and decouple for testing
 const main = async () => {
   const schema = await buildSchema({
-    resolvers: [container.resolve('kudosResolver'), container.resolve('usersResolver')],
-    authChecker
+    resolvers: [
+      container.resolve('kudosResolver'),
+      container.resolve('usersResolver'),
+    ],
+    authChecker,
   })
+
+  // seedDatabase()
 
   const server = new ApolloServer({
     typeDefs,
@@ -120,10 +128,25 @@ const main = async () => {
   })
 
   server.listen().then(({ url }) => {
-    // tslint:disable-next-line: no-console
-    console.log(`Server running at ${url}`);
-  });
+    logger.info(`Server running at ${url}`)
+  })
+
+  return container
 }
 
-// tslint:disable-next-line: no-console
-main().catch(err => console.error(err))
+main().catch((err) => {
+  logger.error(err)
+})
+
+function seedDatabase() {
+  const database: any = container.resolve('database')
+  try {
+    database.users.forEach(async (user: IUser) => {
+      await prisma.user.create({
+        data: user,
+      })
+    })
+  } catch (err) {
+    logger.error(`Error seeding database: ${err}`)
+  }
+}

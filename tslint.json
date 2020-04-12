@@ -5,6 +5,13 @@
         "tslint-config-prettier"
     ],
     "jsRules": {},
-    "rules": {},
+    "rules": {
+        "prettier": [
+            true,
+            {
+                "semi": false
+            }
+        ]
+    },
     "rulesDirectory": []
 }

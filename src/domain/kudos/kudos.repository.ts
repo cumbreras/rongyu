@@ -3,36 +3,58 @@ import { IKudos } from '../kudos/kudos.type'
 import { AppContainer } from '../interfaces/appcontainer.interface'
 
 export default class KudosRepository {
-  database: { users: IUser[], kudos: IKudos[] }
+  private database: { users: IUser[]; kudos: IKudos[] }
+  private prisma: any
+  private logger: any
 
   constructor(container: AppContainer) {
     this.database = container.database
+    this.prisma = container.prisma
+    this.logger = container.logger
   }
 
-  get(): IKudos[] {
-    return this.database.kudos
+  async getAll(): Promise<IKudos[]> {
+    return await this.prisma.kudos.findMany()
   }
 
-  sentByUser(username: string): IKudos[] {
-    return this.database.kudos.filter((k: IKudos) => k.userFrom.username === username);
+  async sentByUser(username: string): Promise<IKudos[]> {
+    return await this.prisma.kudos.findMany({
+      where: { userSent: { username } },
+    })
   }
 
-  receivedByUser(username: string): IKudos[] {
-    return this.database.kudos.filter((k: IKudos) => k.userTo.username === username);
+  async receivedByUser(username: string): Promise<IKudos[]> {
+    return await this.prisma.kudos.findMany({
+      where: { userReceived: { username } },
+    })
   }
 
-  save(message: string, usernameTo: string, usernameFrom: string): IKudos {
+  async save(
+    message: string,
+    usernameTo: string,
+    usernameFrom: string
+  ): Promise<IKudos> {
     const newKudos = {
       message,
       date: new Date().toLocaleDateString('es-ES'),
-      userFrom: {
-        username: usernameFrom,
+      userSent: {
+        connect: { username: usernameTo },
       },
-      userTo: {
-        username: usernameTo,
+      userReceived: {
+        connect: { username: usernameFrom },
       },
-    };
-    this.database.kudos.push(newKudos);
-    return newKudos;
+    }
+
+    let kudos: IKudos
+    try {
+      kudos = await this.prisma.kudos.create({
+        data: newKudos,
+        include: { userSent: true, userReceived: true },
+      })
+    } catch (err) {
+      this.logger.error(err)
+    }
+
+    return kudos
   }
 }
