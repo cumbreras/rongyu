@@ -1,16 +1,13 @@
 import jwt from 'jsonwebtoken'
-import { IDatabase } from '../interfaces/database.interface'
 import { AppContainer } from '../interfaces/appContainer.interface'
 import { IUser } from './user.type'
 
 export default class UsersRepository {
   private appSecret: string
   private prisma: any
-  private database: IDatabase
   logger: any
 
   constructor(container: AppContainer) {
-    this.database = container.database
     this.prisma = container.prisma
     this.appSecret = container.appSecret
     this.logger = container.logger

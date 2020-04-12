@@ -4,11 +4,9 @@ import KudosResolver from '../kudos/kudos.resolvers'
 import UsersResolver from '../users/users.resolvers'
 import UsersRepository from '../users/users.repository'
 import { Logger } from 'pino'
-import { IDatabase } from './database.interface'
 
 export interface AppContainer extends AwilixContainer {
   prisma: any
-  database: IDatabase
   appSecret: string
   kudosRepository: KudosRepository
   usersRepository: UsersRepository
