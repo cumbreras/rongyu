@@ -1,5 +1,5 @@
 import { ApolloServer } from 'apollo-server'
-import { authChecker } from './domain/authentication/authchecker.directive'
+import { authChecker } from './domain/authentication/authChecker.directive'
 import { buildSchema } from 'type-graphql'
 import { contextHandler } from './contextHandler'
 import typeDefs from './typedefs'
