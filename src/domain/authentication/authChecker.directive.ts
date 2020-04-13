@@ -1,7 +1,10 @@
-export const authChecker = ({ context }) => {
+const authChecker = ({ context }) => {
   const currentUser: any = context.container.resolve('currentUser')
   const logger: any = context.container.resolve('logger')
-  logger.info(`currentUser @ authChecker: ${currentUser}`)
+
+  if (currentUser) {
+    logger.info(`currentUser @ authChecker: ${currentUser.username}`)
+  }
 
   if (!currentUser) {
     return false
@@ -9,3 +12,5 @@ export const authChecker = ({ context }) => {
 
   return true
 }
+
+export default authChecker

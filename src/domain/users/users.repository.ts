@@ -1,13 +1,13 @@
 import jwt from 'jsonwebtoken'
-import { AppContainer } from '../interfaces/appContainer.interface'
 import { IUser } from './user.type'
+import { IContainer } from '../../container'
 
 export default class UsersRepository {
   private appSecret: string
   private prisma: any
   logger: any
 
-  constructor(container: AppContainer) {
+  constructor(container: IContainer) {
     this.prisma = container.prisma
     this.appSecret = container.appSecret
     this.logger = container.logger
@@ -15,6 +15,15 @@ export default class UsersRepository {
 
   async getAll(): Promise<IUser[]> {
     return await this.prisma.user.findMany()
+  }
+
+  async getWithToken(token: string): Promise<IUser> {
+    try {
+      const decoded = jwt.verify(token, this.appSecret)
+      return await this.getByUsername((decoded as IUser).username)
+    } catch (e) {
+      return null
+    }
   }
 
   async getByUsername(username: string): Promise<IUser> {
@@ -68,15 +77,6 @@ export default class UsersRepository {
     })
 
     return user
-  }
-
-  async getWithToken(token: string): Promise<IUser> {
-    try {
-      const decoded = jwt.verify(token, this.appSecret)
-      return await this.getByUsername((decoded as IUser).username)
-    } catch (e) {
-      return null
-    }
   }
 
   private isSamePassword(

@@ -1,11 +1,11 @@
-import { authChecker } from './authChecker.directive'
+import authChecker from './authChecker.directive'
 import * as awilix from 'awilix'
 import { asValue, AwilixContainer } from 'awilix'
 
 describe('auth directive', () => {
   let container: AwilixContainer
 
-  beforeEach(() => {
+  beforeAll(() => {
     container = awilix.createContainer()
     container.register({
       logger: asValue({

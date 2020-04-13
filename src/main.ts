@@ -1,33 +1,27 @@
+import 'reflect-metadata'
 import { ApolloServer } from 'apollo-server'
-import { authChecker } from './domain/authentication/authChecker.directive'
-import { buildSchema } from 'type-graphql'
-import { contextHandler } from './contextHandler'
+import context from './context'
 import typeDefs from './typedefs'
-import { seedDatabase } from '../prisma/seeds.database'
-import container from './container'
+import buildSchema from './buildSchema'
+import { AwilixContainer } from 'awilix'
+import { IContainer } from './container'
 
-export const main = async () => {
+export default async (container: AwilixContainer<IContainer>) => {
   const schema = await buildSchema({
-    resolvers: [
-      container.resolve('kudosResolver'),
-      container.resolve('usersResolver'),
-    ],
-    authChecker,
+    container,
   })
 
   const logger: any = container.resolve('logger')
-  const prisma = container.resolve('prisma')
-  seedDatabase(false, prisma, logger)
 
   const server = new ApolloServer({
     typeDefs,
+    context: (req) => context(req, container),
     schema,
-    context: contextHandler,
   })
 
   server.listen().then(({ url }) => {
     logger.info(`Server running at ${url}`)
   })
 
-  return container
+  return server
 }
