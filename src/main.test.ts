@@ -45,7 +45,7 @@ describe('main', () => {
 
     const prismaFindManyUsersMock = jest.fn().mockResolvedValue([fakeUser])
     const prismaFindOneUsersMock = jest.fn().mockResolvedValue(fakeUser)
-    const bearerMock = '123'
+    const bearerMock = faker.random.uuid()
 
     class UsersRepositoryMock {
       async getAll(): Promise<IUser[]> {
@@ -61,7 +61,7 @@ describe('main', () => {
       usersResolver: asClass(UsersResolver),
       usersRepository: asClass(UsersRepositoryMock),
       prisma: asFunction(() => true),
-      appSecret: asValue('appSecretToken'),
+      appSecret: asValue(faker.random.uuid()),
     })
 
     const schema = await buildSchema({
