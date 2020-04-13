@@ -9,20 +9,13 @@ import { IUser } from './domain/users/user.type'
 import testServer from './test/utils/testServer'
 import { IContainer } from './container'
 import KudosRepository from './domain/kudos/kudos.repository'
+import { userFactory, kudosFactory } from './test/utils/factories'
+import { IKudos } from './domain/kudos/kudos.type'
 
 describe('main', () => {
-  let fakeUser: IUser
-
-  beforeAll(() => {
-    fakeUser = {
-      id: faker.random.uuid(),
-      name: faker.name.findName(),
-      username: faker.hacker.noun(),
-      password: faker.internet.password(),
-    }
-  })
-
   test('get all users', async () => {
+    const fakeUser: IUser = userFactory()
+
     const GET_USERS = `
       query users {
         users {
@@ -50,7 +43,6 @@ describe('main', () => {
       kudosResolver: asClass(KudosResolver),
       usersResolver: asClass(UsersResolver),
       usersRepository: asClass(UsersRepositoryMock),
-      kudosRepository: asClass(KudosRepository),
       prisma: asFunction(() => true),
     })
 
@@ -68,5 +60,60 @@ describe('main', () => {
     expect(prismaFindManyUsersMock).toHaveBeenCalled()
     expect(prismaFindOneUsersMock).toHaveBeenCalledWith(bearerMock)
     expect(response.data.users[0].username).toBe(fakeUser.username)
+  })
+
+  test('get all kudos', async () => {
+    const fakeKudos: IKudos = kudosFactory()
+
+    const GET_KUDOS = `
+      query kudos {
+        kudos {
+          message
+        }
+      }
+    `
+
+    const prismaFindManyKudosMock = jest.fn().mockResolvedValue([fakeKudos])
+    const prismaFindOneUsersMock = jest.fn().mockResolvedValue(userFactory())
+
+    // tslint:disable-next-line: max-classes-per-file
+    class KudosRepositoryMock {
+      async getAll(): Promise<IUser[]> {
+        return prismaFindManyKudosMock()
+      }
+    }
+
+    // tslint:disable-next-line: max-classes-per-file
+    class UsersRepositoryMock {
+      async getWithToken(token: string): Promise<IUser> {
+        return prismaFindOneUsersMock(token)
+      }
+    }
+
+    const bearerMock = faker.random.uuid()
+
+    const container = awilix.createContainer()
+    container.register({
+      kudosResolver: asClass(KudosResolver),
+      usersResolver: asClass(UsersResolver),
+      usersRepository: asClass(UsersRepositoryMock),
+      kudosRepository: asClass(KudosRepositoryMock),
+      prisma: asFunction(() => true),
+    })
+
+    const testValues: {
+      bearerMock: string
+      container: AwilixContainer<IContainer>
+    } = {
+      bearerMock,
+      container,
+    }
+
+    const { query } = await testServer(testValues)
+    const response = await query({ query: GET_KUDOS })
+
+    expect(prismaFindManyKudosMock).toHaveBeenCalled()
+    expect(prismaFindOneUsersMock).toHaveBeenCalledWith(bearerMock)
+    expect(response.data.kudos[0].message).toBe(fakeKudos.message)
   })
 })

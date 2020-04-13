@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken'
 import { IUser } from './user.type'
-import { AwilixContainer } from 'awilix'
 import { IContainer } from '../../container'
 
 export default class UsersRepository {

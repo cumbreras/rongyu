@@ -19,6 +19,6 @@ export default class Kudos {
 export interface IKudos {
   message: string
   date: string
-  userTo: Partial<IUser>
-  userFrom: Partial<IUser>
+  userSent: Partial<IUser>
+  userReceived: Partial<IUser>
 }

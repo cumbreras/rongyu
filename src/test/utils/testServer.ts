@@ -1,7 +1,7 @@
 import { createTestClient } from 'apollo-server-testing'
 import faker from 'faker'
 import { ApolloServer } from 'apollo-server'
-import pino, { Logger } from 'pino'
+import pino from 'pino'
 
 import buildSchema from '../../buildSchema'
 import context from '../../context'

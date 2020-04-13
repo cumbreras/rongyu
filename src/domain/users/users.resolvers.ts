@@ -13,7 +13,7 @@ import UsersRepository from './users.repository'
 import { IContext } from '../../context'
 
 @InputType({ description: 'Register User' })
-export class RegisterUserInput implements Partial<User> {
+class RegisterUserInput implements Partial<User> {
   @Field()
   username: string
 
@@ -26,7 +26,7 @@ export class RegisterUserInput implements Partial<User> {
 
 // tslint:disable-next-line: max-classes-per-file
 @InputType({ description: 'Login User' })
-export class LoginUserInput implements Partial<User> {
+class LoginUserInput implements Partial<User> {
   @Field()
   username: string
 

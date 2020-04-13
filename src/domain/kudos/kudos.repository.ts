@@ -1,5 +1,4 @@
 import { IKudos } from '../kudos/kudos.type'
-import { AwilixContainer } from 'awilix'
 import { IContainer } from '../../container'
 
 export default class KudosRepository {
