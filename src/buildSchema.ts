@@ -1,9 +1,10 @@
 import { buildSchema } from 'type-graphql'
+import authChecker from './domain/authentication/authChecker.directive'
+import { IContainer } from './container'
 import { AwilixContainer } from 'awilix'
-import authChecker from '../../domain/authentication/authChecker.directive'
 
 interface Options {
-  container: AwilixContainer
+  container: AwilixContainer<IContainer>
 }
 
 export default async ({ container }: Options) => {

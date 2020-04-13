@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "tsc -p .",
     "start:dev": "nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/app.ts | pino-pretty",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "author": "",
   "license": "ISC",

@@ -1,30 +1,25 @@
 import 'reflect-metadata'
-import * as awilix from 'awilix'
-import { asValue, AwilixContainer, asClass, asFunction } from 'awilix'
-import { createTestClient } from 'apollo-server-testing'
-import { ApolloServer } from 'apollo-server'
-
 import faker from 'faker'
-import typeDefs from './typedefs'
-import context from './context'
+import * as awilix from 'awilix'
+import { asClass, asFunction, AwilixContainer } from 'awilix'
 
-import { buildSchema } from 'type-graphql'
 import KudosResolver from './domain/kudos/kudos.resolvers'
 import UsersResolver from './domain/users/users.resolvers'
-import authChecker from './domain/authentication/authChecker.directive'
 import { IUser } from './domain/users/user.type'
+import testServer from './test/utils/testServer'
+import { IContainer } from './container'
+import KudosRepository from './domain/kudos/kudos.repository'
 
 describe('main', () => {
-  let container: AwilixContainer
+  let fakeUser: IUser
+
   beforeAll(() => {
-    container = awilix.createContainer()
-    container.register({
-      typeDefs: asValue(typeDefs),
-      logger: asValue({
-        // tslint:disable-next-line: no-console
-        info: jest.fn((val) => console.log(val)),
-      }),
-    })
+    fakeUser = {
+      id: faker.random.uuid(),
+      name: faker.name.findName(),
+      username: faker.hacker.noun(),
+      password: faker.internet.password(),
+    }
   })
 
   test('get all users', async () => {
@@ -36,16 +31,8 @@ describe('main', () => {
       }
     `
 
-    const fakeUser = {
-      id: faker.random.uuid(),
-      name: faker.name.findName(),
-      username: faker.hacker.noun(),
-      password: faker.internet.password(),
-    }
-
     const prismaFindManyUsersMock = jest.fn().mockResolvedValue([fakeUser])
     const prismaFindOneUsersMock = jest.fn().mockResolvedValue(fakeUser)
-    const bearerMock = faker.random.uuid()
 
     class UsersRepositoryMock {
       async getAll(): Promise<IUser[]> {
@@ -56,35 +43,26 @@ describe('main', () => {
       }
     }
 
+    const bearerMock = faker.random.uuid()
+
+    const container = awilix.createContainer()
     container.register({
       kudosResolver: asClass(KudosResolver),
       usersResolver: asClass(UsersResolver),
       usersRepository: asClass(UsersRepositoryMock),
+      kudosRepository: asClass(KudosRepository),
       prisma: asFunction(() => true),
-      appSecret: asValue(faker.random.uuid()),
     })
 
-    const schema = await buildSchema({
-      resolvers: [
-        container.resolve('kudosResolver'),
-        container.resolve('usersResolver'),
-      ],
-      authChecker,
-    })
+    const testValues: {
+      bearerMock: string
+      container: AwilixContainer<IContainer>
+    } = {
+      bearerMock,
+      container,
+    }
 
-    const server = new ApolloServer({
-      typeDefs,
-      context: () =>
-        context(
-          {
-            req: { headers: { authorization: `Bearer ${bearerMock}` } },
-          },
-          container
-        ),
-      schema,
-    })
-
-    const { query } = createTestClient(server)
+    const { query } = await testServer(testValues)
     const response = await query({ query: GET_USERS })
 
     expect(prismaFindManyUsersMock).toHaveBeenCalled()

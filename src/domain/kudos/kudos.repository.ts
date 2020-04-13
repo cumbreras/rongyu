@@ -1,12 +1,12 @@
-import { IUser } from '../users/user.type'
 import { IKudos } from '../kudos/kudos.type'
-import { AppContainer } from '../interfaces/appContainer.interface'
+import { AwilixContainer } from 'awilix'
+import { IContainer } from '../../container'
 
 export default class KudosRepository {
   private prisma: any
   private logger: any
 
-  constructor(container: AppContainer) {
+  constructor(container: IContainer) {
     this.prisma = container.prisma
     this.logger = container.logger
   }

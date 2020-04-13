@@ -1,8 +1,11 @@
-import { asValue } from 'awilix'
+import { asValue, AwilixContainer } from 'awilix'
 import uuidv4 from 'uuid/v4'
-import { extractBearer } from './helpers/extractBearer'
 
-export default async ({ req }, container) => {
+import { extractBearer } from './helpers/extractBearer'
+import { IContainer } from './container'
+import { IUser } from './domain/users/user.type'
+
+export default async ({ req }, container: AwilixContainer<IContainer>) => {
   const requestId = uuidv4()
   const authorizationHeader = req.headers.authorization || ''
   const token = extractBearer(authorizationHeader)
@@ -22,4 +25,10 @@ export default async ({ req }, container) => {
   })
 
   return { container }
+}
+
+export interface IContext {
+  requestId: number
+  container: AwilixContainer<IContainer>
+  currentUser?: IUser
 }
