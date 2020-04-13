@@ -1,12 +1,12 @@
+import 'reflect-metadata'
 import { ApolloServer } from 'apollo-server'
-import { authChecker } from './domain/authentication/authChecker.directive'
 import { buildSchema } from 'type-graphql'
-import { contextHandler } from './contextHandler'
+import { AppContainer } from './domain/interfaces/appContainer.interface'
+import authChecker from './domain/authentication/authChecker.directive'
+import context from './context'
 import typeDefs from './typedefs'
-import { seedDatabase } from '../prisma/seeds.database'
-import container from './container'
 
-export const main = async () => {
+export default async (container: AppContainer) => {
   const schema = await buildSchema({
     resolvers: [
       container.resolve('kudosResolver'),
@@ -16,18 +16,16 @@ export const main = async () => {
   })
 
   const logger: any = container.resolve('logger')
-  const prisma = container.resolve('prisma')
-  seedDatabase(false, prisma, logger)
 
   const server = new ApolloServer({
     typeDefs,
+    context: (req) => context(req, container),
     schema,
-    context: contextHandler,
   })
 
   server.listen().then(({ url }) => {
     logger.info(`Server running at ${url}`)
   })
 
-  return container
+  return server
 }

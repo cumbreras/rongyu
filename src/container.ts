@@ -1,5 +1,5 @@
 import * as awilix from 'awilix'
-import { asClass, asValue } from 'awilix'
+import { asClass, asValue, asFunction } from 'awilix'
 import { PrismaClient } from '@prisma/client'
 import pino from 'pino'
 
@@ -7,6 +7,8 @@ import KudosResolver from './domain/kudos/kudos.resolvers'
 import KudosRepository from './domain/kudos/kudos.repository'
 import UsersRepository from './domain/users/users.repository'
 import UsersResolver from './domain/users/users.resolvers'
+import { AppContainer } from './domain/interfaces/appContainer.interface'
+import typeDefs from './typedefs'
 
 const prisma = new PrismaClient()
 const logger = pino()
@@ -20,6 +22,14 @@ container.register({
   usersResolver: asClass(UsersResolver),
   logger: asValue(logger),
   prisma: asValue(prisma),
+  typeDefs: asValue(typeDefs),
+  currentUser: asValue({}),
 })
 
-export default container
+export interface IContainer {
+  appSecret: string
+  currentUser: object
+  logger: object
+}
+
+export default container as AppContainer

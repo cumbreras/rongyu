@@ -3,12 +3,10 @@ import { IKudos } from '../kudos/kudos.type'
 import { AppContainer } from '../interfaces/appContainer.interface'
 
 export default class KudosRepository {
-  private database: { users: IUser[]; kudos: IKudos[] }
   private prisma: any
   private logger: any
 
   constructor(container: AppContainer) {
-    this.database = container.database
     this.prisma = container.prisma
     this.logger = container.logger
   }

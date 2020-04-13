@@ -10,7 +10,7 @@ import {
 } from 'type-graphql'
 import User from './user.type'
 import Context from '../interfaces/context.interface'
-import UserRepository from './users.repository'
+import UsersRepository from './users.repository'
 
 @InputType({ description: 'Register User' })
 export class RegisterUserInput implements Partial<User> {
@@ -40,7 +40,7 @@ export default class UsersResolver {
   @Authorized()
   @Query(() => [User])
   users(@Ctx() ctx: Context) {
-    return ctx.container.resolve<UserRepository>('usersRepository').getAll()
+    return ctx.container.resolve<UsersRepository>('usersRepository').getAll()
   }
 
   @Mutation(() => User)
@@ -49,7 +49,7 @@ export default class UsersResolver {
     @Ctx() ctx: Context
   ) {
     return ctx.container
-      .resolve<UserRepository>('usersRepository')
+      .resolve<UsersRepository>('usersRepository')
       .register(name, username, password)
   }
 
@@ -59,7 +59,7 @@ export default class UsersResolver {
     @Ctx() ctx: Context
   ) {
     return ctx.container
-      .resolve<UserRepository>('usersRepository')
+      .resolve<UsersRepository>('usersRepository')
       .login(username, password)
   }
 }
