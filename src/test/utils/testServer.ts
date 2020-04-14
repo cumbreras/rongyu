@@ -5,7 +5,6 @@ import pino from 'pino'
 
 import buildSchema from '../../buildSchema'
 import context from '../../context'
-import typeDefs from '../../typedefs'
 import { asValue, AwilixContainer } from 'awilix'
 import { IContainer } from '../../container'
 
@@ -19,7 +18,6 @@ export default async ({
   const logger = pino({ enabled: false })
   container.register({
     appSecret: asValue(faker.random.uuid()),
-    typeDefs: asValue(typeDefs),
     logger: asValue(logger),
   })
 
@@ -28,7 +26,6 @@ export default async ({
   })
 
   const server = new ApolloServer({
-    typeDefs,
     context: () =>
       context(
         {

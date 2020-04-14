@@ -11,8 +11,8 @@ import {
 } from 'type-graphql'
 import Kudos from './kudos.type'
 
-@ArgsType()
-class KudosSentByUserArgs {
+@InputType({ description: 'Kudos by User' })
+export class KudosByUserInput {
   @Field({ nullable: true })
   username: string
 }
@@ -36,12 +36,15 @@ export default class KudosResolver {
   }
 
   @Query(() => [Kudos])
-  kudosSentByUser(@Args() { username }: KudosSentByUserArgs, @Ctx() ctx) {
+  kudosSentByUser(@Arg('input') { username }: KudosByUserInput, @Ctx() ctx) {
     return ctx.container.resolve('kudosRepository').sentByUser(username)
   }
 
   @Query(() => [Kudos])
-  kudosReceivedByUser(@Args() { username }: KudosSentByUserArgs, @Ctx() ctx) {
+  kudosReceivedByUser(
+    @Arg('input') { username }: KudosByUserInput,
+    @Ctx() ctx
+  ) {
     return ctx.container.resolve('kudosRepository').receivedByUser(username)
   }
 
