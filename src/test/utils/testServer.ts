@@ -16,7 +16,7 @@ export default async ({
   bearerMock: string
   container: AwilixContainer<IContainer>
 }) => {
-  const logger = pino()
+  const logger = pino({ enabled: false })
   container.register({
     appSecret: asValue(faker.random.uuid()),
     typeDefs: asValue(typeDefs),

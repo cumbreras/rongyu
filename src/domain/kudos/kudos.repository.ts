@@ -28,17 +28,17 @@ export default class KudosRepository {
 
   async save(
     message: string,
-    usernameTo: string,
-    usernameFrom: string
+    userSent: string,
+    userReceived: string
   ): Promise<IKudos> {
     const newKudos = {
       message,
       date: new Date().toLocaleDateString('es-ES'),
       userSent: {
-        connect: { username: usernameTo },
+        connect: { username: userSent },
       },
       userReceived: {
-        connect: { username: usernameFrom },
+        connect: { username: userReceived },
       },
     }
 

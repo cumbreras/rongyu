@@ -9,11 +9,14 @@ export const userFactory = () => {
   }
 }
 
-export const kudosFactory = () => {
+export const kudosFactory = (
+  userSent = userFactory(),
+  userReceived = userFactory()
+) => {
   return {
     message: faker.lorem.words(4),
     date: faker.date.recent().toISOString(),
-    userSent: userFactory(),
-    userReceived: userFactory(),
+    userSent,
+    userReceived,
   }
 }

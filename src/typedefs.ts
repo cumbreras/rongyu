@@ -15,7 +15,7 @@ export default gql`
   }
 
   input SendKudosInput {
-    username: String!
+    userReceivedUsername: String!
     message: String!
   }
 
