@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import faker from 'faker'
 import * as awilix from 'awilix'
-import { asClass, asFunction, AwilixContainer } from 'awilix'
+import { asClass, AwilixContainer } from 'awilix'
 
 import KudosResolver from './domain/kudos/kudos.resolvers'
 import UsersResolver from './domain/users/users.resolvers'
