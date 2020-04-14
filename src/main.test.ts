@@ -226,10 +226,7 @@ describe('main', () => {
         }
       }
 
-      const {
-        prismaFindOneUsersMock,
-        UsersRepositoryMock,
-      } = authedUserRepositoryMock()
+      const { UsersRepositoryMock } = authedUserRepositoryMock()
       const container = awilix.createContainer()
       container.register({
         kudosResolver: asClass(KudosResolver),
@@ -259,6 +256,60 @@ describe('main', () => {
       })
 
       expect(response.data.kudosSentByUser[0].message).toBe(fakeKudos.message)
+    })
+
+    test('get kudos received by the user', async () => {
+      const KUDOS_RECEIVED_BY_USER = `
+        query kudosReceivedByUser($input: KudosByUserInput!) {
+          kudosReceivedByUser(input: $input) {
+            message
+          }
+        }
+      `
+
+      const prismaFindManyKudosByUserMock = jest
+        .fn()
+        .mockResolvedValue([fakeKudos])
+
+      // tslint:disable-next-line: max-classes-per-file
+      class KudosRepositoryMock {
+        async receivedByUser(username: string) {
+          return prismaFindManyKudosByUserMock()
+        }
+      }
+
+      const { UsersRepositoryMock } = authedUserRepositoryMock()
+      const container = awilix.createContainer()
+      container.register({
+        kudosResolver: asClass(KudosResolver),
+        usersResolver: asClass(UsersResolver),
+        usersRepository: asClass(UsersRepositoryMock),
+        kudosRepository: asClass(KudosRepositoryMock),
+      })
+
+      const testValues: {
+        bearerMock: string
+        container: AwilixContainer<IContainer>
+      } = {
+        bearerMock,
+        container,
+      }
+
+      const kudosReceivedByUserArgs: { input: KudosByUserInput } = {
+        input: {
+          username: fakeKudos.userSent.username,
+        },
+      }
+
+      const { query } = await testServer(testValues)
+      const response = await query({
+        query: KUDOS_RECEIVED_BY_USER,
+        variables: kudosReceivedByUserArgs,
+      })
+
+      expect(response.data.kudosReceivedByUser[0].message).toBe(
+        fakeKudos.message
+      )
     })
   })
 })
