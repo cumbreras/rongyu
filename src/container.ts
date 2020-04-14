@@ -7,7 +7,6 @@ import KudosResolver from './domain/kudos/kudos.resolvers'
 import KudosRepository from './domain/kudos/kudos.repository'
 import UsersRepository from './domain/users/users.repository'
 import UsersResolver from './domain/users/users.resolvers'
-import typeDefs from './typedefs'
 import { DocumentNode } from 'graphql'
 import { IUser } from './domain/users/user.type'
 
@@ -23,7 +22,6 @@ container.register({
   usersResolver: asClass(UsersResolver),
   logger: asValue(logger),
   prisma: asValue(prisma),
-  typeDefs: asValue(typeDefs),
   currentUser: asValue({}),
 })
 
@@ -34,7 +32,6 @@ export interface IContainer extends AwilixContainer {
   kudosResolver: KudosResolver
   usersResolver: UsersResolver
   logger: Logger
-  typeDefs: DocumentNode
   appSecret?: string
   currentUser?: IUser
   requestId?: string
