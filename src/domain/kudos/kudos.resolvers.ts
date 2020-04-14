@@ -21,7 +21,7 @@ class KudosSentByUserArgs {
 @InputType({ description: 'Send Kudos' })
 class SendKudosInput implements Partial<Kudos> {
   @Field()
-  username: string
+  userReceivedUsername: string
 
   @Field()
   message: string
@@ -51,7 +51,7 @@ export default class KudosResolver {
       .resolve('kudosRepository')
       .save(
         newKudosInput.message,
-        newKudosInput.username,
+        newKudosInput.userReceivedUsername,
         ctx.container.resolve('currentUser').username
       )
   }
