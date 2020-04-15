@@ -12,6 +12,8 @@ import { userFactory, kudosFactory } from './test/utils/factories'
 import { IKudos } from './domain/kudos/kudos.type'
 import { authedUserRepositoryMock } from './test/utils/mocks/authedUserRepositoryMock'
 import { KudosByUserInput } from '../src/domain/kudos/kudos.resolvers'
+import { RegisterUserInput } from './domain/users/users.resolvers'
+import { ok } from 'assert'
 
 describe('main', () => {
   let bearerMock: string
@@ -72,6 +74,61 @@ describe('main', () => {
       expect(prismaFindOneUsersMock).toHaveBeenCalledWith(bearerMock)
       expect(response.data.users[0].username).toBe(fakeUserReceived.username)
       expect(response.data.users[1].username).toBe(fakeUserSent.username)
+    })
+
+    test('register a user', async () => {
+      const REGISTER_USER = `
+        mutation registerUser($input: RegisterUserInput!) {
+          registerUser(input: $input) {
+            name
+            username
+          }
+        }
+      `
+      const registerUserInput = {
+        input: {
+          name: fakeUserSent.name,
+          username: fakeUserSent.username,
+          password: fakeUserSent.password,
+        },
+      }
+
+      const prismaCreateUserMock = jest.fn().mockResolvedValue(fakeUserSent)
+
+      const { UsersRepositoryMock } = authedUserRepositoryMock()
+
+      // tslint:disable-next-line: max-classes-per-file
+      class ExtendedUsersRepositoryMock extends UsersRepositoryMock {
+        async register(
+          name: string,
+          username: string,
+          password: string
+        ): Promise<IUser> {
+          return prismaCreateUserMock()
+        }
+      }
+
+      const container = awilix.createContainer()
+      container.register({
+        kudosResolver: asClass(KudosResolver),
+        usersResolver: asClass(UsersResolver),
+        usersRepository: asClass(ExtendedUsersRepositoryMock),
+      })
+
+      const testValues: {
+        bearerMock: string
+        container: AwilixContainer<IContainer>
+      } = {
+        bearerMock,
+        container,
+      }
+      const { mutate } = await testServer(testValues)
+      const response = await mutate({
+        mutation: REGISTER_USER,
+        variables: registerUserInput,
+      })
+
+      expect(response.data.registerUser.name).toBe(fakeUserSent.name)
     })
   })
 

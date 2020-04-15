@@ -7,7 +7,6 @@ import KudosResolver from './domain/kudos/kudos.resolvers'
 import KudosRepository from './domain/kudos/kudos.repository'
 import UsersRepository from './domain/users/users.repository'
 import UsersResolver from './domain/users/users.resolvers'
-import { DocumentNode } from 'graphql'
 import { IUser } from './domain/users/user.type'
 
 const prisma = new PrismaClient()

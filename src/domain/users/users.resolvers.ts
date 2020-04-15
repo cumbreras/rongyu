@@ -13,7 +13,7 @@ import UsersRepository from './users.repository'
 import { IContext } from '../../context'
 
 @InputType({ description: 'Register User' })
-class RegisterUserInput implements Partial<User> {
+export class RegisterUserInput implements Partial<User> {
   @Field()
   username: string
 
