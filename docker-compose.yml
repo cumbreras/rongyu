@@ -1,0 +1,13 @@
+version: "2"
+services:
+  rongyu:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - 4000:4000
+    networks:
+      - hub
+
+networks:
+  hub:
