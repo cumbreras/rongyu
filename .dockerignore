@@ -1,0 +1,10 @@
+README.md
+
+.git
+.github
+.gitignore
+
+.env
+.env.sample
+
+.prettierrc
