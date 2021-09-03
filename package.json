@@ -23,7 +23,7 @@
     "awilix": "^4.2.5",
     "dotenv": "^8.2.0",
     "graphql": "^14.0.0",
-    "immer": "^6.0.3",
+    "immer": "^9.0.6",
     "jsonwebtoken": "^8.5.1",
     "nodemon": "^2.0.3",
     "pino": "^6.1.1",
